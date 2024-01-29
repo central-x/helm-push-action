@@ -1,0 +1,27 @@
+name: "Helm Push Action (OCI-based)"
+description: "Push Charts to OCI-based Helm Registry"
+author: "Alan Yeh"
+branding:
+  icon: anchor
+  color: blue
+inputs:
+  repository:
+    description: "Repository of registry"
+    required: true
+  chart:
+    description: "Path to chart"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - id: "package"
+      shell: bash
+      run: |
+        echo "Packaging ${chart} to ./charts ..."
+        helm package ${{ inputs.chart }} -d ./charts
+        
+        for chart in ./charts/*.tgz; do
+          echo "Pushing ${chart} to ${{ inputs.repository }} ..."
+          helm push $chart ${{ inputs.repository }}
+        done
